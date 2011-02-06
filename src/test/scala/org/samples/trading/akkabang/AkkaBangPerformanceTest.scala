@@ -25,7 +25,7 @@ class AkkaBangPerformanceTest extends AkkaPerformanceTest {
   def placeOrder(orderReceiver: ActorRef, order: Order): Rsp = {
     val newOrder = LatchOrder(order)
     orderReceiver ! newOrder
-    val ok = newOrder.latch.await(5, TimeUnit.SECONDS)
+    val ok = newOrder.latch.await(10, TimeUnit.SECONDS)
     new Rsp(ok)
   }
   

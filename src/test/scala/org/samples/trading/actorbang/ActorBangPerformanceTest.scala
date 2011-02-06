@@ -21,7 +21,7 @@ class ActorBangPerformanceTest extends ActorPerformanceTest {
   override def placeOrder(orderReceiver: ActorOrderReceiver, order: Order): Rsp = {
     val newOrder = LatchOrder(order)
     val r = orderReceiver.asInstanceOf[ActorOrderReceiver] ! newOrder
-    val ok = newOrder.latch.await(5, TimeUnit.SECONDS)
+    val ok = newOrder.latch.await(10, TimeUnit.SECONDS)
     new Rsp(ok)
   }
   

@@ -56,7 +56,6 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
     val durationNs = (System.nanoTime - start)
 
     assertTrue(ok)
-    Thread.sleep(1000)
     assertEquals((orders.size / 2) * repeat, TotalTradeCounter.counter.get)
     logMeasurement(scenario, numberOfClients, durationNs)
     clients.foreach(_.stop)
