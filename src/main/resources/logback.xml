@@ -19,7 +19,7 @@
     <!--See http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <!--and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy-->
     <!--for further documentation-->
-    <File>./logs/akka.log</File>
+    <File>${logback.basedir:-.}/logs/akka.log</File>
     <encoder>
       <pattern>[%4p] [%d{ISO8601}] [%t] %c{1}: %m%n</pattern>
     </encoder>
