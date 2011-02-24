@@ -2,16 +2,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.samples</groupId>
+	<groupId>com.github.patriknw</groupId>
 	<artifactId>akka-sample-trading</artifactId>
-	<version>1.0-RC6</version>
+	<version>1.0</version>
 	<name>Scala Akka Trading Sample</name>
 	<packaging>jar</packaging>
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.8.1</scala.version>
-		<akka.version>1.0-RC6</akka.version>
+		<akka.version>1.0</akka.version>
 	</properties>
+  <distributionManagement>
+      <!-- Use -DaltDeploymentRepository when deploying, as described here:
+        http://cemerick.com/2010/08/24/hosting-maven-repos-on-github/
+        mvn deploy -DaltDeploymentRepository=akka-sample-trading-repo::default::file:/Users/patrik/IdeaProjects/akka/akka-sample-trading/releases
+      -->
+      <repository>
+          <id>akka-sample-trading-repo</id>
+          <url>https://github.com/patriknw/akka-sample-trading/raw/master/releases</url>
+      </repository>
+  </distributionManagement>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -50,6 +61,18 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-jar-plugin</artifactId>
+               <version>2.2</version>
+               <executions>
+                 <execution>
+                   <goals>
+                     <goal>test-jar</goal>
+                   </goals>
+                 </execution>
+               </executions>
+            </plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.5</version>
