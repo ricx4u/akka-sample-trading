@@ -25,12 +25,12 @@ trait PerformanceTest {
     System.getProperty("maxClients", "40").toInt;
   
   def repeatFactor() = {
-    val defaultRepeatFactor = if (isBenchmark) "50" else "10"
+    val defaultRepeatFactor = if (isBenchmark) "150" else "10"
     System.getProperty("repeatFactor", defaultRepeatFactor).toInt
   }
   
   def warmupRepeatFactor() = {
-    val defaultRepeatFactor = if (isBenchmark) "100" else "10"
+    val defaultRepeatFactor = if (isBenchmark) "200" else "10"
     System.getProperty("warmupRepeatFactor", defaultRepeatFactor).toInt
   }
 
