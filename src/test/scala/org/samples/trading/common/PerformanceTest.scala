@@ -38,6 +38,10 @@ trait PerformanceTest {
     System.getProperty("randomSeed", "0").toInt
   }
   
+  def timeDilation() = {
+    System.getProperty("timeDilation", "1").toLong
+  }
+  
   var stat: DescriptiveStatistics = _
 
   type TS <: TradingSystem

@@ -47,7 +47,7 @@ class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSc
 
     val start = System.nanoTime
     clients.foreach(_.start)
-    val ok = latch.await(5000 + (2 + delayMs) * totalNumberOfRequests, TimeUnit.MILLISECONDS)
+    val ok = latch.await((5000 + (2 + delayMs) * totalNumberOfRequests) * timeDilation, TimeUnit.MILLISECONDS)
     val durationNs = (System.nanoTime - start)
 
     assertTrue(ok)

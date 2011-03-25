@@ -52,7 +52,7 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
     clients.foreach(_.start)
     val start = System.nanoTime
     clients.foreach(_ ! "run")
-    val ok = latch.await(5000 + (2 + delayMs) * totalNumberOfRequests, TimeUnit.MILLISECONDS)
+    val ok = latch.await((5000 + (2 + delayMs) * totalNumberOfRequests) * timeDilation, TimeUnit.MILLISECONDS)
     val durationNs = (System.nanoTime - start)
 
     assertTrue(ok)
