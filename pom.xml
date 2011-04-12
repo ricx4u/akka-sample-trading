@@ -24,6 +24,8 @@
   </distributionManagement>
 
 	<build>
+		<sourceDirectory>src/main/scala</sourceDirectory>
+		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.scala-tools</groupId>
@@ -98,21 +100,16 @@
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<!--
-						buildOutputDirectory doesn't work due to
-						http://jira.codehaus.org/browse/MECLIPSE-422 An workaround is the
-						outputDirectory at project/build level
-						<buildOutputDirectory>war/WEB-INF/classes</buildOutputDirectory>
-					-->
 					<testOutputDirectory>target/test-classes</testOutputDirectory>
 					<classpathContainers>
-						<classpathContainer>ch.epfl.lamp.sdt.launching.SCALA_CONTAINER</classpathContainer>
+						<classpathContainer>org.scala-ide.sdt.launching.SCALA_CONTAINER</classpathContainer>
+						<classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
 					</classpathContainers>
 					<buildcommands>
-						<buildcommand>ch.epfl.lamp.sdt.core.scalabuilder</buildcommand>
+						<buildcommand>org.scala-ide.sdt.core.scalabuilder</buildcommand>
 					</buildcommands>
 					<additionalProjectnatures>
-						<buildcommand>ch.epfl.lamp.sdt.core.scalabuilder</buildcommand>
+						<projectnature>org.scala-ide.sdt.core.scalanature</projectnature>
 						<projectnature>org.eclipse.jdt.core.javanature</projectnature>
 					</additionalProjectnatures>
 				</configuration>
