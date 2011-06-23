@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.patriknw</groupId>
 	<artifactId>akka-sample-trading</artifactId>
-	<version>1.1</version>
+	<version>1.1.2-SNAPSHOT</version>
 	<name>Scala Akka Trading Sample</name>
 	<packaging>jar</packaging>
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scala.version>2.9.0</scala.version>
-		<akka.version>1.1</akka.version>
+		<scala.version>2.9.0-1</scala.version>
+		<akka.version>1.1.2</akka.version>
 	</properties>
   <distributionManagement>
       <!-- Use -DaltDeploymentRepository when deploying, as described here:
@@ -51,8 +51,16 @@
 				<configuration>
 					<scalaVersion>${scala.version}</scalaVersion>
 					<args>
-						<arg>-target:jvm-1.5</arg>
-					</args>
+                        <arg>-target:jvm-1.5</arg>
+                        <arg>-P:continuations:enable</arg>
+                    </args>
+                    <compilerPlugins>
+                        <compilerPlugin>
+                            <groupId>org.scala-lang.plugins</groupId>
+                            <artifactId>continuations</artifactId>
+                            <version>${scala.version}</version>
+                        </compilerPlugin>
+                    </compilerPlugins>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -201,41 +209,17 @@
 
 	<repositories>
 		<repository>
-			<id>scala-tools.org</id>
-			<name>Scala-Tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
+		  <id>Typesafe</id>
+		  <name>Typesafe Repository</name>
+		  <url>http://repo.typesafe.com/typesafe/releases</url>
 		</repository>
-		<repository>
-		  <id>Akka</id>
-		  <name>Akka Maven2 Repository</name>
-		  <url>http://akka.io/repository/</url>
-		</repository>
-		 
-		<repository>
-		  <id>Multiverse</id>
-		  <name>Multiverse Maven2 Repository</name>
-		  <url>http://multiverse.googlecode.com/svn/maven-repository/releases/</url>
-		</repository>
-		 
-		<repository>
-		  <id>GuiceyFruit</id>
-		  <name>GuiceyFruit Maven2 Repository</name>
-		  <url>http://guiceyfruit.googlecode.com/svn/repo/releases/ </url>
-		</repository>
-		 
-		<repository>
-		  <id>JBoss</id>
-		  <name>JBoss Maven2 Repository</name>
-		  <url>https://repository.jboss.org/nexus/content/groups/public/ </url>
-		</repository>
-		
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>scala-tools.org</id>
-			<name>Scala-Tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
+			<id>Typesafe</id>
+			<name>Typesafe Repository</name>
+			<url>http://repo.typesafe.com/typesafe/releases</url>
 		</pluginRepository>
 	</pluginRepositories>
 </project>	
