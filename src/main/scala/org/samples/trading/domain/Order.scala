@@ -1,28 +1,27 @@
 package org.samples.trading.domain
 
-abstract case class Order(
-                           val orderbookSymbol: String,
-                           val price: Long,
-                           val volume: Long) {
+trait Order {
+  def orderbookSymbol: String
+  def price: Long
+  def volume: Long
 }
 
 case class Bid(
-                orderbookSymbol2: String,
-                price2: Long,
-                volume2: Long)
-  extends Order(orderbookSymbol2, price2, volume2) {
+  orderbookSymbol: String,
+  price: Long,
+  volume: Long)
+  extends Order {
 
   def split(newVolume: Long) = {
     new Bid(orderbookSymbol, price, newVolume)
   }
 }
 
-
 case class Ask(
-                orderbookSymbol2: String,
-                price2: Long,
-                volume2: Long)
-  extends Order(orderbookSymbol2, price2, volume2) {
+  orderbookSymbol: String,
+  price: Long,
+  volume: Long)
+  extends Order {
 
   def split(newVolume: Long) = {
     new Ask(orderbookSymbol, price, newVolume)

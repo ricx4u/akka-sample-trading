@@ -8,9 +8,9 @@ abstract class Orderbook(val symbol: String) {
     assert(symbol == order.orderbookSymbol)
     order match {
       case bid: Bid =>
-        bidSide = (bid :: bidSide).sort(_.price > _.price)
+        bidSide = (bid :: bidSide).sortWith(_.price > _.price)
       case ask: Ask =>
-        askSide = (ask :: askSide).sort(_.price < _.price)
+        askSide = (ask :: askSide).sortWith(_.price < _.price)
     }
   }
 
