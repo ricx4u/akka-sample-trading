@@ -20,8 +20,7 @@ class AkkaOrderReceiver(val matchingEngines: List[ActorRef], disp: Option[Messag
 
   override
   def supportedOrderbooks(me: ActorRef): List[Orderbook] = {
-    val rsp: Option[Any] = (me !! SupportedOrderbooksReq)
-    rsp.getOrElse(Nil).asInstanceOf[List[Orderbook]]
+    (me !!! SupportedOrderbooksReq).get
   }
 
 
@@ -34,7 +33,7 @@ class AkkaOrderReceiver(val matchingEngines: List[ActorRef], disp: Option[Messag
         m.forward(order)
       case None =>
         println("Unknown orderbook: " + order.orderbookSymbol)
-        self.reply(new Rsp(false))
+        self.channel ! new Rsp(false)
     }
   }
 }

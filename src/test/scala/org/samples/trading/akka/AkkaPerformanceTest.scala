@@ -28,8 +28,7 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
 
   override
   def placeOrder(orderReceiver: ActorRef, order: Order): Rsp = {
-    val r = orderReceiver !! order
-    r.getOrElse(new Rsp(false)).asInstanceOf[Rsp]
+    (orderReceiver !!! order).get
   }
 
 

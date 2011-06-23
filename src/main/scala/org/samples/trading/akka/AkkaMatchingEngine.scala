@@ -20,7 +20,7 @@ class AkkaMatchingEngine(val meId: String, val orderbooks: List[Orderbook], disp
 
   def receive = {
     case standbyRef: ActorRef => standby = Some(standbyRef)
-    case SupportedOrderbooksReq => self.reply(orderbooks)
+    case SupportedOrderbooksReq => self.channel ! orderbooks
     case order: Order => handleOrder(order)
     case unknown => println("Received unknown message: " + unknown)
   }
@@ -40,10 +40,10 @@ class AkkaMatchingEngine(val meId: String, val orderbooks: List[Orderbook], disp
         orderbook.matchOrders
         // wait for standby reply
         pendingStandbyReply.foreach(waitForStandby(_))
-        self.reply(new Rsp(true))
+        self.channel ! new Rsp(true)
       case None =>
         println("Orderbook not handled by this MatchingEngine: " + order.orderbookSymbol)
-        self.reply(new Rsp(false))
+        self.channel ! new Rsp(false)
     }
   }
 
