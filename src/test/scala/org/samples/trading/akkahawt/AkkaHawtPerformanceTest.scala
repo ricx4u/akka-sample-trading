@@ -17,14 +17,13 @@ import akka.actor.Actor.actorOf
 class AkkaHawtPerformanceTest extends AkkaBangPerformanceTest {
 
   override def createTradingSystem: TS = new AkkaHawtTradingSystem {
-    override
-    def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) = 
+    override def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) =
       actorOf(new AkkaBangMatchingEngine(meId, orderbooks, meDispatcher) with LatchMessageCountDown)
   }
 
   // need this so that junit will detect this as a test case
   @Test
   override def dummy {}
-  
+
 }
 

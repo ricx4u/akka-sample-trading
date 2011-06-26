@@ -7,7 +7,6 @@ import org.samples.trading.domain.Orderbook
 import org.samples.trading.domain.Rsp
 import org.samples.trading.domain.SupportedOrderbooksReq
 
-
 class ActorMatchingEngine(val meId: String, val orderbooks: List[Orderbook])
   extends Actor with MatchingEngine {
   var standby: Option[ActorMatchingEngine] = None
@@ -19,36 +18,34 @@ class ActorMatchingEngine(val meId: String, val orderbooks: List[Orderbook])
   //        })
   //    }
 
-
   def act() {
-    loop{
-      react{
-        case SupportedOrderbooksReq => reply(orderbooks)
+    loop {
+      react {
+        case SupportedOrderbooksReq => 
+          reply(orderbooks)
         case order: Order =>
           handleOrder(order)
         case "exit" =>
           standby.foreach(_ !! "exit")
           txLog.close()
           exit
-        case unknown => println("Received unknown message: " + unknown)
-
+        case unknown => 
+          println("Received unknown message: " + unknown)
       }
     }
   }
 
   def handleOrder(order: Order) {
-    orderbooksMap(order.orderbookSymbol) match {
+    orderbooksMap.get(order.orderbookSymbol) match {
       case Some(orderbook) =>
-      // println(meId + " " + order)
+        // println(meId + " " + order)
 
-        val pendingStandbyReply: Option[Future[Any]] = standby match {
-          case Some(s) => Some(s !! order)
-          case None => None
-        }
-
+        val pendingStandbyReply: Option[Future[Any]] = 
+          for (s <- standby) yield { s !! order }
+        
         txLog.storeTx(order)
         orderbook.addOrder(order)
-        orderbook.matchOrders
+        orderbook.matchOrders()
         // wait for standby reply
         pendingStandbyReply.foreach(waitForStandby(_))
         reply(new Rsp(true))
@@ -65,6 +62,5 @@ class ActorMatchingEngine(val meId: String, val orderbooks: List[Orderbook])
       println("### standby timeout")
     }
   }
-
 
 }

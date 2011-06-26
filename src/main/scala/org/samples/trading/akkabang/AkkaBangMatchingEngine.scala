@@ -7,25 +7,23 @@ import org.samples.trading.akka._
 import org.samples.trading.domain.Order
 import org.samples.trading.domain.Orderbook
 
-class AkkaBangMatchingEngine(val meId2: String, val orderbooks2: List[Orderbook], disp2: Option[MessageDispatcher])
-  extends AkkaMatchingEngine(meId2, orderbooks2, disp2) {
+class AkkaBangMatchingEngine(meId: String, orderbooks: List[Orderbook], disp: Option[MessageDispatcher])
+  extends AkkaMatchingEngine(meId, orderbooks, disp) {
 
-  override
-  def handleOrder(order: Order) {
-    orderbooksMap(order.orderbookSymbol) match {
+  override def handleOrder(order: Order) {
+    orderbooksMap.get(order.orderbookSymbol) match {
       case Some(orderbook) =>
-      //                println(meId + " " + order)
+        // println(meId + " " + order)
 
         standby.foreach(_ ! order)
 
         txLog.storeTx(order)
         orderbook.addOrder(order)
-        orderbook.matchOrders
+        orderbook.matchOrders()
 
       case None =>
         println("Orderbook not handled by this MatchingEngine: " + order.orderbookSymbol)
     }
   }
-
 
 }

@@ -13,18 +13,16 @@ import org.samples.trading.common._
 
 class BasicPerformanceTest extends BenchmarkScenarios {
   type TS = BasicTradingSystem
-  
+
   override def createTradingSystem: TS = new BasicTradingSystem
 
   override def placeOrder(orderReceiver: BasicOrderReceiver, order: Order): Rsp = {
     orderReceiver.asInstanceOf[BasicOrderReceiver].placeOrder(order)
   }
 
-
   // need this so that junit will detect this as a test case
   @Test
   def dummy {
-    
   }
 
   override def runScenario(scenario: String, orders: List[Order], repeat: Int, numberOfClients: Int, delayMs: Int) = {
@@ -64,8 +62,7 @@ class BasicPerformanceTest extends BenchmarkScenarios {
             }
             delay(delayMs)
           }
-        }
-        )
+        })
       latch.countDown()
     }
   }

@@ -15,7 +15,7 @@ import org.samples.trading.common._
 class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceScenarios 
 {
   type TS = ActorTradingSystem
-  
+
   val threadPool: ExecutorService = Executors.newFixedThreadPool(maxClients)
 
   override def createTradingSystem: TS = new ActorTradingSystem
@@ -24,11 +24,10 @@ class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSc
     val r = orderReceiver.asInstanceOf[ActorOrderReceiver] !? order
     val rsp = r match {
       case r: Rsp => r
-      case _ => new Rsp(false)
+      case _      => new Rsp(false)
     }
     rsp
   }
-
 
   // need this so that junit will detect this as a test case
   @Test
@@ -46,7 +45,7 @@ class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSc
     }).toList
 
     val start = System.nanoTime
-    clients.foreach(_.start)
+    clients.foreach(_.start())
     val ok = latch.await((5000 + (2 + delayMs) * totalNumberOfRequests) * timeDilation, TimeUnit.MILLISECONDS)
     val durationNs = (System.nanoTime - start)
 
@@ -63,9 +62,9 @@ class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSc
           def run() { block }
         })
     }
-    
+
     def this(orderReceiver: ActorOrderReceiver, orders: List[Order], latch: CountDownLatch, repeat: Int) {
-      this (orderReceiver, orders, latch, repeat, 0)
+      this(orderReceiver, orders, latch, repeat, 0)
     }
 
     def act() {
@@ -82,8 +81,7 @@ class ActorPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSc
             }
             delay(delayMs)
           }
-        }
-        )
+        })
       latch.countDown()
       exit
     }

@@ -8,16 +8,15 @@ import org.samples.trading.domain.Rsp
 class BasicMatchingEngine(val meId: String, val orderbooks: List[Orderbook]) extends MatchingEngine {
   var standby: Option[BasicMatchingEngine] = None
 
-  def matchOrder(order: Order): Rsp = synchronized{
-    orderbooksMap(order.orderbookSymbol) match {
+  def matchOrder(order: Order): Rsp = synchronized {
+    orderbooksMap.get(order.orderbookSymbol) match {
       case Some(orderbook) =>
         txLog.storeTx(order)
         orderbook.addOrder(order)
-        orderbook.matchOrders
+        orderbook.matchOrders()
 
-        standby match {
-          case None =>
-          case Some(standbyMatchingEngine) => standbyMatchingEngine.matchOrder(order)
+        for (s <- standby) {
+          s.matchOrder(order)
         }
 
         new Rsp(true)

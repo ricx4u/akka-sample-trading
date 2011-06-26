@@ -1,7 +1,6 @@
 package org.samples.trading.common
 
 import org.samples.trading.domain.Orderbook
-import org.samples.trading.domain.OrderbookFactory
 import org.samples.trading.domain.OrderbookRepository
 
 trait TradingSystem {
@@ -12,7 +11,7 @@ trait TradingSystem {
 
   val orderbooksGroupedByMatchingEngine: List[List[Orderbook]] =
     for (groupOfSymbols: List[String] <- OrderbookRepository.orderbookSymbolsGroupedByMatchingEngine)
-    yield groupOfSymbols map (s => OrderbookFactory.createOrderbook(s, false))
+      yield groupOfSymbols map (s => Orderbook(s, false))
 
   def useStandByEngines: Boolean = true
 

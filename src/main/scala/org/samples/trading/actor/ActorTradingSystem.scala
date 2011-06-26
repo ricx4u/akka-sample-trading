@@ -1,9 +1,8 @@
 package org.samples.trading.actor
 
 import org.samples.trading.common._
-
 import org.samples.trading.domain.Orderbook
-import org.samples.trading.domain.OrderbookFactory
+
 class ActorTradingSystem extends TradingSystem {
   type ME = ActorMatchingEngine
   type OR = ActorOrderReceiver
@@ -11,11 +10,10 @@ class ActorTradingSystem extends TradingSystem {
   override def createMatchingEngines = {
     var i = 0
     val pairs =
-      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine)
-      yield {
+      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine) yield {
         i = i + 1
         val me = createMatchingEngine("ME" + i, orderbooks)
-        val orderbooksCopy = orderbooks map (o => OrderbookFactory.createOrderbook(o.symbol, true))
+        val orderbooksCopy = orderbooks map (o => Orderbook(o.symbol, true))
         val standbyOption =
           if (useStandByEngines) {
             val meStandby = createMatchingEngine("ME" + i + "s", orderbooksCopy)
@@ -41,18 +39,17 @@ class ActorTradingSystem extends TradingSystem {
   def createOrderReceiver(matchingEngines: List[ActorMatchingEngine]) =
     new ActorOrderReceiver(matchingEngines)
 
-  override def start {
-
+  override def start() {
     for ((p, s) <- matchingEngines) {
-      p.start
+      p.start()
       // standby is optional
-      s.foreach(_.start)
+      s.foreach(_.start())
       p.standby = s
     }
-    orderReceivers.foreach(_.start)
+    orderReceivers.foreach(_.start())
   }
 
-  override def shutdown {
+  override def shutdown() {
     orderReceivers.foreach(_ ! "exit")
     for ((p, s) <- matchingEngines) {
       p ! "exit"

@@ -9,8 +9,8 @@ class BasicOrderReceiver(val matchingEngines: List[BasicMatchingEngine]) extends
   type ME = BasicMatchingEngine
 
   def placeOrder(order: Order): Rsp = {
-    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions
-    matchingEngineForOrderbook(order.orderbookSymbol) match {
+    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions()
+    matchingEngineForOrderbook.get(order.orderbookSymbol) match {
       case Some(matchingEngine) =>
         matchingEngine.matchOrder(order)
       case None =>
@@ -18,10 +18,8 @@ class BasicOrderReceiver(val matchingEngines: List[BasicMatchingEngine]) extends
     }
   }
 
-  override
-  def supportedOrderbooks(me: BasicMatchingEngine): List[Orderbook] = {
+  override def supportedOrderbooks(me: BasicMatchingEngine): List[Orderbook] = {
     me.supportedOrderbooks
   }
-
 
 }

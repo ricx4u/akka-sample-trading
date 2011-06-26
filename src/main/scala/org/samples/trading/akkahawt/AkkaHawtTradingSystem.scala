@@ -9,31 +9,27 @@ class AkkaHawtTradingSystem extends AkkaBangTradingSystem {
 
   lazy val hawtDispatcher = new HawtDispatcher(false)
 
-  override
-  def createOrderReceiverDispatcher: Option[MessageDispatcher] = {
+  override def createOrderReceiverDispatcher: Option[MessageDispatcher] = {
     val dispatcher = Dispatchers.newExecutorBasedEventDrivenDispatcher("or-dispatcher")
       .withNewThreadPoolWithLinkedBlockingQueueWithUnboundedCapacity
       .setCorePoolSize(1)
       .setMaxPoolSize(1)
       .build;
-    Option(dispatcher)
+    Some(dispatcher)
   }
 
-  override
-  def createMatchingEngineDispatcher: Option[MessageDispatcher] = Option(hawtDispatcher)
+  override def createMatchingEngineDispatcher: Option[MessageDispatcher] = Option(hawtDispatcher)
 
-  override def start {
-    super.start
-
+  override def start() {
+    super.start()
 
     for ((p, s) <- matchingEngines) {
-      //      HawtDispatcher.pin(p)
-      if (s != None) {
-        //        HawtDispatcher.pin(s.get)
+      // HawtDispatcher.pin(p)
+      if (s.isDefined) {
+        // HawtDispatcher.pin(s.get)
         HawtDispatcher.target(p, HawtDispatcher.queue(s.get))
       }
     }
   }
-
 
 }

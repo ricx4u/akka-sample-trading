@@ -19,21 +19,21 @@ class ActorOrderReceiver(val matchingEngines: List[ActorMatchingEngine])
   //    }
 
   def act() {
-    loop{
-      react{
+    loop {
+      react {
         case order: Order => placeOrder(order)
-        case "exit" => exit
-        case unknown => println("Received unknown message: " + unknown)
+        case "exit"       => exit
+        case unknown      => println("Received unknown message: " + unknown)
       }
     }
   }
 
   protected def placeOrder(order: Order) = {
-    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions
-    val matchingEngine = matchingEngineForOrderbook(order.orderbookSymbol)
+    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions()
+    val matchingEngine = matchingEngineForOrderbook.get(order.orderbookSymbol)
     matchingEngine match {
       case Some(m) =>
-      // println("receiver " + order)
+        // println("receiver " + order)
         m.forward(order)
       case None =>
         println("Unknown orderbook: " + order.orderbookSymbol)
@@ -41,12 +41,12 @@ class ActorOrderReceiver(val matchingEngines: List[ActorMatchingEngine])
     }
   }
 
-  override
-  def supportedOrderbooks(me: ActorMatchingEngine): List[Orderbook] = {
+  
+  override def supportedOrderbooks(me: ActorMatchingEngine): List[Orderbook] = {
     val r = (me !? SupportedOrderbooksReq)
     val rsp = r match {
       case r: List[Orderbook] => r
-      case _ => Nil
+      case _                  => Nil
     }
     rsp
   }

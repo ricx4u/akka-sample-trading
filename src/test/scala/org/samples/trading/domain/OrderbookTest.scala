@@ -5,7 +5,6 @@ import Assert._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 
-
 class OrderbookTest {
   var orderbook: Orderbook = null
   var tradeObserverMock: TradeObserver = null
@@ -25,7 +24,7 @@ class OrderbookTest {
     orderbook.addOrder(bid)
     orderbook.addOrder(ask)
 
-    orderbook.matchOrders
+    orderbook.matchOrders()
     assertEquals(0, orderbook.bidSide.size)
     assertEquals(0, orderbook.askSide.size)
 
@@ -52,7 +51,7 @@ class OrderbookTest {
 
     assertEquals(ask1 :: ask2 :: ask3 :: Nil, orderbook.askSide)
 
-    orderbook.matchOrders
+    orderbook.matchOrders()
     assertEquals(1, orderbook.bidSide.size)
     assertEquals(bid3, orderbook.bidSide.head)
     assertEquals(1, orderbook.askSide.size)
@@ -68,7 +67,7 @@ class OrderbookTest {
     orderbook.addOrder(bid)
     orderbook.addOrder(ask)
 
-    orderbook.matchOrders
+    orderbook.matchOrders()
     assertEquals(0, orderbook.bidSide.size)
     assertEquals(1, orderbook.askSide.size)
     assertEquals(700, orderbook.askSide.head.volume)
@@ -83,7 +82,7 @@ class OrderbookTest {
     orderbook.addOrder(bid)
     orderbook.addOrder(ask)
 
-    orderbook.matchOrders
+    orderbook.matchOrders()
     assertEquals(1, orderbook.bidSide.size)
     assertEquals(0, orderbook.askSide.size)
     assertEquals(400, orderbook.bidSide.head.volume)

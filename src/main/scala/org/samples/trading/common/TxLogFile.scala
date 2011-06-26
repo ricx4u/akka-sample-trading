@@ -6,15 +6,12 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.BufferedWriter
 
-
 /**
  * Note that this is not thread safe, concurrency must be handled by caller.
  */
-
 class TxLogFile(fileName: String) extends TxLog {
   private val txLogFile = new File(System.getProperty("java.io.tmpdir"), fileName)
   private var txLogWriter: BufferedWriter = null
-
 
   def storeTx(order: Order) {
     if (txLogWriter == null) {

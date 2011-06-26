@@ -10,26 +10,25 @@ class AkkaOrderReceiver(val matchingEngines: List[ActorRef], disp: Option[Messag
   extends Actor with OrderReceiver {
   type ME = ActorRef
 
-  if (disp.isDefined)
-    self.dispatcher = disp.get
+  for (d <- disp) {
+    self.dispatcher = d
+  }
 
   def receive = {
     case order: Order => placeOrder(order)
-    case unknown => println("Received unknown message: " + unknown)
+    case unknown      => println("Received unknown message: " + unknown)
   }
 
-  override
-  def supportedOrderbooks(me: ActorRef): List[Orderbook] = {
+  override def supportedOrderbooks(me: ActorRef): List[Orderbook] = {
     (me !!! SupportedOrderbooksReq).get
   }
 
-
   def placeOrder(order: Order) = {
-    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions
-    val matchingEngine = matchingEngineForOrderbook(order.orderbookSymbol)
+    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions()
+    val matchingEngine = matchingEngineForOrderbook.get(order.orderbookSymbol)
     matchingEngine match {
       case Some(m) =>
-      //        				println("receiver " + order)
+        // println("receiver " + order)
         m.forward(order)
       case None =>
         println("Unknown orderbook: " + order.orderbookSymbol)

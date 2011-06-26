@@ -1,7 +1,6 @@
 package org.samples.trading.basic
 
 import org.samples.trading.common._
-import org.samples.trading.domain.OrderbookFactory
 import org.samples.trading.domain.Orderbook
 
 class BasicTradingSystem extends TradingSystem {
@@ -11,11 +10,10 @@ class BasicTradingSystem extends TradingSystem {
   override def createMatchingEngines = {
     var i = 0
     val pairs =
-      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine)
-      yield {
+      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine) yield {
         i = i + 1
         val me = new BasicMatchingEngine("ME" + i, orderbooks)
-        val orderbooksCopy = orderbooks map (o => OrderbookFactory.createOrderbook(o.symbol, true))
+        val orderbooksCopy = orderbooks map (o => Orderbook(o.symbol, true))
         val standbyOption =
           if (useStandByEngines) {
             val meStandby = new BasicMatchingEngine("ME" + i + "s", orderbooksCopy)
@@ -36,17 +34,17 @@ class BasicTradingSystem extends TradingSystem {
     result
   }
 
-  override def start {
+  override def start() {
     for ((p, s) <- matchingEngines) {
       p.standby = s
     }
   }
 
-  override def shutdown {
+  override def shutdown() {
     for ((p, s) <- matchingEngines) {
-      p.exit
+      p.exit()
       // standby is optional
-      s.foreach(_.exit)
+      s.foreach(_.exit())
     }
   }
 

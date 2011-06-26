@@ -6,8 +6,8 @@ trait MatchingEngine {
   val meId: String
   val orderbooks: List[Orderbook]
   val supportedOrderbookSymbols = orderbooks map (_.symbol)
-  protected val orderbooksMap: Map[String, Option[Orderbook]] =
-    Map() ++ (orderbooks map (o => (o.symbol, Some(o))))
+  protected val orderbooksMap: Map[String, Orderbook] =
+    Map() ++ (orderbooks map (o => (o.symbol, o)))
 
   protected val txLog: TxLog =
     if (useTxLogFile)

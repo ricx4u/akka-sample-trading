@@ -6,14 +6,14 @@ trait OrderReceiver {
   type ME
   val matchingEngines: List[ME]
   var matchingEnginePartitionsIsStale = true
-  var matchingEngineForOrderbook: Map[String, Option[ME]] = Map()
+  var matchingEngineForOrderbook: Map[String, ME] = Map()
 
-  def refreshMatchingEnginePartitions {
+  def refreshMatchingEnginePartitions() {
     val m = Map() ++
       (for {
         me <- matchingEngines
         o <- supportedOrderbooks(me)
-      } yield (o.symbol, Some(me)))
+      } yield (o.symbol, me))
 
     matchingEngineForOrderbook = m
     matchingEnginePartitionsIsStale = false

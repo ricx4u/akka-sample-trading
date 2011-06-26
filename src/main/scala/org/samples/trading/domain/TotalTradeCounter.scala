@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object TotalTradeCounter {
   val counter = new AtomicInteger
 
-  def reset =
+  def reset() {
     counter.set(0)
+  }
 }

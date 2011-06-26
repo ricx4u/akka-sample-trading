@@ -11,33 +11,35 @@ import org.samples.trading.domain.SupportedOrderbooksReq
 import akka.dispatch.MessageDispatcher
 import akka.actor.ActorRef
 
-
 class AkkaMatchingEngine(val meId: String, val orderbooks: List[Orderbook], disp: Option[MessageDispatcher]) extends Actor with MatchingEngine {
-  if (disp.isDefined)
-    self.dispatcher = disp.get
+  for (d <- disp) {
+    self.dispatcher = d
+  }
 
   var standby: Option[ActorRef] = None
 
   def receive = {
-    case standbyRef: ActorRef => standby = Some(standbyRef)
-    case SupportedOrderbooksReq => self.channel ! orderbooks
-    case order: Order => handleOrder(order)
-    case unknown => println("Received unknown message: " + unknown)
+    case standbyRef: ActorRef =>
+      standby = Some(standbyRef)
+    case SupportedOrderbooksReq =>
+      self.channel ! orderbooks
+    case order: Order =>
+      handleOrder(order)
+    case unknown =>
+      println("Received unknown message: " + unknown)
   }
 
   def handleOrder(order: Order) {
-    orderbooksMap(order.orderbookSymbol) match {
+    orderbooksMap.get(order.orderbookSymbol) match {
       case Some(orderbook) =>
-      //				println(meId + " " + order)
+        // println(meId + " " + order)
 
-        val pendingStandbyReply: Option[Future[_]] = standby match {
-          case Some(s) => Some(s !!! order)
-          case None => None
-        }
+        val pendingStandbyReply: Option[Future[_]] = 
+          for (s <- standby) yield { s !!! order }
 
         txLog.storeTx(order)
         orderbook.addOrder(order)
-        orderbook.matchOrders
+        orderbook.matchOrders()
         // wait for standby reply
         pendingStandbyReply.foreach(waitForStandby(_))
         self.channel ! new Rsp(true)
@@ -47,19 +49,16 @@ class AkkaMatchingEngine(val meId: String, val orderbooks: List[Orderbook], disp
     }
   }
 
-  override
-  def postStop {
+  override def postStop {
     txLog.close()
   }
 
   def waitForStandby(pendingStandbyFuture: Future[_]) {
-    try
-    {
+    try {
       pendingStandbyFuture.await
     } catch {
       case e: FutureTimeoutException => println("### standby timeout: " + e)
     }
   }
-
 
 }

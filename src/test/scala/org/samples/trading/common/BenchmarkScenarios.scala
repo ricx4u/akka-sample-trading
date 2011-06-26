@@ -25,18 +25,18 @@ trait BenchmarkScenarios extends PerformanceTest {
   def complexScenario(numberOfClients: Int) {
     Assume.assumeTrue(numberOfClients >= minClients)
     Assume.assumeTrue(numberOfClients <= maxClients)
-        
+
     val repeat = 500 * repeatFactor
 
     val prefixes = "A" :: "B" :: "C" :: Nil
-    val askOrders = for{
+    val askOrders = for {
       s <- prefixes
-      i <- 1 to 5}
-      yield new Ask(s + i, 100 - i, 1000)
-    val bidOrders = for{
+      i <- 1 to 5
+    } yield new Ask(s + i, 100 - i, 1000)
+    val bidOrders = for {
       s <- prefixes
-      i <- 1 to 5}
-      yield new Bid(s + i, 100 - i, 1000)
+      i <- 1 to 5
+    } yield new Bid(s + i, 100 - i, 1000)
     val orders = askOrders ::: bidOrders
 
     runScenario("benchmark", orders, repeat, numberOfClients, 0)

@@ -13,8 +13,7 @@ import org.samples.trading.common._
 class ActorBangPerformanceTest extends ActorPerformanceTest {
 
   override def createTradingSystem: TS = new ActorBangTradingSystem {
-    override
-    def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) = 
+    override def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) =
       new ActorBangMatchingEngine(meId, orderbooks) with LatchMessageCountDown
   }
 
@@ -24,18 +23,16 @@ class ActorBangPerformanceTest extends ActorPerformanceTest {
     val ok = newOrder.latch.await(10, TimeUnit.SECONDS)
     new Rsp(ok)
   }
-  
+
   // need this so that junit will detect this as a test case
   @Test
   override def dummy {}
-  
 
 }
 
 trait LatchMessageCountDown extends ActorBangMatchingEngine {
-  
-  override
-  def handleOrder(order: Order) {
+
+  override def handleOrder(order: Order) {
     super.handleOrder(order)
     order.asInstanceOf[LatchMessage].latch.countDown
   }
