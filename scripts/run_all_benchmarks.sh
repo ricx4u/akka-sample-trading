@@ -3,7 +3,7 @@
 RUN_SCRIPT=`dirname $0`/run_benchmark.sh
 
 runTests() {
-  $RUN_SCRIPT org.samples.trading.basic.BasicPerformanceTest
+#  $RUN_SCRIPT org.samples.trading.basic.BasicPerformanceTest
   $RUN_SCRIPT org.samples.trading.actor.ActorPerformanceTest
   $RUN_SCRIPT org.samples.trading.akka.AkkaPerformanceTest
   $RUN_SCRIPT org.samples.trading.actorbang.ActorBangPerformanceTest
@@ -16,10 +16,10 @@ runTests() {
 #runTests
 
 # All tests without tx logging
-export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=false'
-runTests
+#export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=false'
+#runTests
 
 # All tests without tx logging, with DummyOrderbook
-export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true'
+export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true' -DrepeatFactor=300
 runTests
 
