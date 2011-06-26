@@ -20,6 +20,6 @@ runTests() {
 #runTests
 
 # All tests without tx logging, with DummyOrderbook
-export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true' -DrepeatFactor=300
+export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true -DrepeatFactor=300' 
 runTests
 
