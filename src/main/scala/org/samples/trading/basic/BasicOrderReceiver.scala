@@ -4,22 +4,22 @@ import org.samples.trading.common.OrderReceiver
 import org.samples.trading.domain.Order
 import org.samples.trading.domain.Rsp
 import org.samples.trading.domain.Orderbook
+import org.samples.trading.common.MatchingEngineRouting
 
-class BasicOrderReceiver(val matchingEngines: List[BasicMatchingEngine]) extends OrderReceiver {
+class BasicOrderReceiver() extends OrderReceiver {
   type ME = BasicMatchingEngine
 
   def placeOrder(order: Order): Rsp = {
-    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions()
     matchingEngineForOrderbook.get(order.orderbookSymbol) match {
-      case Some(matchingEngine) =>
+      case Some(matchingEngine) ⇒
         matchingEngine.matchOrder(order)
-      case None =>
+      case None ⇒
         throw new IllegalArgumentException("Unknown orderbook: " + order.orderbookSymbol)
     }
   }
 
-  override def supportedOrderbooks(me: BasicMatchingEngine): List[Orderbook] = {
-    me.supportedOrderbooks
+  def updateRouting(routing: MatchingEngineRouting[BasicMatchingEngine]) {
+    refreshMatchingEnginePartitions(routing)
   }
 
 }

@@ -10,15 +10,26 @@ trait TradingSystem {
   val allOrderbookSymbols: List[String] = OrderbookRepository.allOrderbookSymbols
 
   val orderbooksGroupedByMatchingEngine: List[List[Orderbook]] =
-    for (groupOfSymbols: List[String] <- OrderbookRepository.orderbookSymbolsGroupedByMatchingEngine)
-      yield groupOfSymbols map (s => Orderbook(s, false))
+    for (groupOfSymbols: List[String] ← OrderbookRepository.orderbookSymbolsGroupedByMatchingEngine)
+      yield groupOfSymbols map (s ⇒ Orderbook(s, false))
 
   def useStandByEngines: Boolean = true
 
-  // pairs of primary-standby matching engines
-  lazy val matchingEngines: Map[ME, Option[ME]] = createMatchingEngines
+  lazy val matchingEngines: List[MatchingEngineInfo] = createMatchingEngines
 
-  def createMatchingEngines: Map[ME, Option[ME]]
+  def matchingEngineRouting: MatchingEngineRouting[ME] = {
+    val rules =
+      for {
+        info ← matchingEngines
+        orderbookSymbols = info.orderbooks.map(_.symbol)
+      } yield {
+        (info.primary, orderbookSymbols)
+      }
+
+    MatchingEngineRouting(Map() ++ rules)
+  }
+
+  def createMatchingEngines: List[MatchingEngineInfo]
 
   lazy val orderReceivers: List[OR] = createOrderReceivers
 
@@ -28,4 +39,5 @@ trait TradingSystem {
 
   def shutdown()
 
+  case class MatchingEngineInfo(primary: ME, standby: Option[ME], orderbooks: List[Orderbook])
 }

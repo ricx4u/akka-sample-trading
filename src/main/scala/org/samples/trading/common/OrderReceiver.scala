@@ -4,21 +4,22 @@ import org.samples.trading.domain.Orderbook
 
 trait OrderReceiver {
   type ME
-  val matchingEngines: List[ME]
-  var matchingEnginePartitionsIsStale = true
   var matchingEngineForOrderbook: Map[String, ME] = Map()
 
-  def refreshMatchingEnginePartitions() {
+  def refreshMatchingEnginePartitions(routing: MatchingEngineRouting[ME]) {
+
+    val matchingEngines: List[ME] = routing.mapping.keys.toList
+    def supportedOrderbooks(me: ME): List[String] = routing.mapping(me)
+
     val m = Map() ++
       (for {
-        me <- matchingEngines
-        o <- supportedOrderbooks(me)
-      } yield (o.symbol, me))
+        me ← matchingEngines
+        orderbookSymbol ← supportedOrderbooks(me)
+      } yield (orderbookSymbol, me))
 
     matchingEngineForOrderbook = m
-    matchingEnginePartitionsIsStale = false
   }
 
-  def supportedOrderbooks(me: ME): List[Orderbook]
-
 }
+
+case class MatchingEngineRouting[ME](mapping: Map[ME, List[String]])

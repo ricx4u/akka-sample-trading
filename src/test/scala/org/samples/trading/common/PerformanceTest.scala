@@ -5,8 +5,11 @@ import org.junit._
 import Assert._
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics
 import org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatistics
-
 import org.samples.trading.domain._
+import scala.collection.immutable.TreeMap
+import org.samples.trading.workbench.Stats
+import org.samples.trading.workbench.BenchResultRepository
+import org.samples.trading.workbench.Report
 
 trait PerformanceTest {
 
@@ -17,29 +20,32 @@ trait PerformanceTest {
 
   def isBenchmark() = System.getProperty("benchmark") == "true"
 
-  def minClients() = System.getProperty("minClients", "1").toInt;
+  def minClients() = System.getProperty("benchmark.minClients", "1").toInt;
 
-  def maxClients() = System.getProperty("maxClients", "40").toInt;
+  def maxClients() = System.getProperty("benchmark.maxClients", "40").toInt;
 
   def repeatFactor() = {
     val defaultRepeatFactor = if (isBenchmark) "150" else "10"
-    System.getProperty("repeatFactor", defaultRepeatFactor).toInt
+    System.getProperty("benchmark.repeatFactor", defaultRepeatFactor).toInt
   }
 
   def warmupRepeatFactor() = {
     val defaultRepeatFactor = if (isBenchmark) "200" else "10"
-    System.getProperty("warmupRepeatFactor", defaultRepeatFactor).toInt
+    System.getProperty("benchmark.warmupRepeatFactor", defaultRepeatFactor).toInt
   }
 
   def randomSeed() = {
-    System.getProperty("randomSeed", "0").toInt
+    System.getProperty("benchmark.randomSeed", "0").toInt
   }
 
   def timeDilation() = {
-    System.getProperty("timeDilation", "1").toLong
+    System.getProperty("benchmark.timeDilation", "1").toLong
   }
 
   var stat: DescriptiveStatistics = _
+
+  def resultRepository = BenchResultRepository()
+  def report = new Report(resultRepository, compareResultWith)
 
   type TS <: TradingSystem
 
@@ -65,6 +71,7 @@ trait PerformanceTest {
   @After
   def tearDown() {
     tradingSystem.shutdown()
+    stat = null
   }
 
   def warmUp() {
@@ -74,45 +81,46 @@ trait PerformanceTest {
     val orderReceiver = tradingSystem.orderReceivers.head
     val loopCount = if (isWarm) 1 else 10 * warmupRepeatFactor
 
-    for (i <- 1 to loopCount) {
+    for (i ← 1 to loopCount) {
       placeOrder(orderReceiver, bid)
       placeOrder(orderReceiver, ask)
     }
     isWarm = true
   }
 
+  /**
+   * To compare two tests with each other you can override this method, in
+   * the test. For example Some("OneWayPerformanceTest")
+   */
+  def compareResultWith: Option[String] = None
+
   def logMeasurement(scenario: String, numberOfClients: Int, durationNs: Long) {
-    val durationUs = durationNs / 1000
-    val durationMs = durationNs / 1000000
+
+    val name = getClass.getSimpleName
     val durationS = durationNs.toDouble / 1000000000.0
-    val duration = durationS.formatted("%.0f")
-    val n = stat.getN
-    val mean = (stat.getMean / 1000).formatted("%.0f")
-    val tps = (stat.getN.toDouble / durationS).formatted("%.0f")
-    val p5 = (stat.getPercentile(5.0) / 1000).formatted("%.0f")
-    val p25 = (stat.getPercentile(25.0) / 1000).formatted("%.0f")
-    val p50 = (stat.getPercentile(50.0) / 1000).formatted("%.0f")
-    val p75 = (stat.getPercentile(75.0) / 1000).formatted("%.0f")
-    val p95 = (stat.getPercentile(95.0) / 1000).formatted("%.0f")
-    val name = getClass.getSimpleName + "." + scenario
 
-    val summaryLine = name :: numberOfClients.toString :: tps :: mean :: p5 :: p25 :: p50 :: p75 :: p95 :: duration :: n :: Nil
-    StatSingleton.results = summaryLine.mkString("\t") :: StatSingleton.results
+    val percentiles = TreeMap[Int, Long](
+      5 -> (stat.getPercentile(5.0) / 1000).toLong,
+      25 -> (stat.getPercentile(25.0) / 1000).toLong,
+      50 -> (stat.getPercentile(50.0) / 1000).toLong,
+      75 -> (stat.getPercentile(75.0) / 1000).toLong,
+      95 -> (stat.getPercentile(95.0) / 1000).toLong)
 
-    val spaces = "                                                                                     "
-    val headerScenarioCol = ("Scenario" + spaces).take(name.length)
+    val stats = Stats(
+      name,
+      load = numberOfClients,
+      timestamp = TestStart.startTime,
+      durationNanos = durationNs,
+      n = stat.getN,
+      min = (stat.getMin / 1000).toLong,
+      max = (stat.getMax / 1000).toLong,
+      mean = (stat.getMean / 1000).toLong,
+      tps = (stat.getN.toDouble / durationS),
+      percentiles)
 
-    val headerLine = (headerScenarioCol :: "clients" :: "TPS" :: "mean" :: "5%  " :: "25% " :: "50% " :: "75% " :: "95% " :: "Durat." :: "N" :: Nil)
-      .mkString("\t")
-    val headerLine2 = (spaces.take(name.length) :: "       " :: "   " :: "(us)" :: "(us)" :: "(us)" :: "(us)" :: "(us)" :: "(us)" :: "(s)   " :: " " :: Nil)
-      .mkString("\t")
-    val line = List.fill(StatSingleton.results.head.replaceAll("\t", "      ").length)("-").mkString
-    println(line.replace('-', '='))
-    println(headerLine)
-    println(headerLine2)
-    println(line)
-    println(StatSingleton.results.reverse.mkString("\n"))
-    println(line)
+    resultRepository.add(stats)
+
+    report.html(resultRepository.get(name))
   }
 
   def delay(delayMs: Int) {
@@ -131,6 +139,8 @@ trait PerformanceTest {
 
 }
 
-object StatSingleton {
-  var results: List[String] = Nil
+// Don't know why surefire tries to run this as a test
+@Ignore
+object TestStart {
+  val startTime = System.currentTimeMillis
 }

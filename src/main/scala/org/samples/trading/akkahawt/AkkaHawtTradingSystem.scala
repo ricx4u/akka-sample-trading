@@ -23,7 +23,7 @@ class AkkaHawtTradingSystem extends AkkaBangTradingSystem {
   override def start() {
     super.start()
 
-    for ((p, s) <- matchingEngines) {
+    for (MatchingEngineInfo(p, s, o) ← matchingEngines) {
       // HawtDispatcher.pin(p)
       if (s.isDefined) {
         // HawtDispatcher.pin(s.get)

@@ -7,7 +7,7 @@ trait MatchingEngine {
   val orderbooks: List[Orderbook]
   val supportedOrderbookSymbols = orderbooks map (_.symbol)
   protected val orderbooksMap: Map[String, Orderbook] =
-    Map() ++ (orderbooks map (o => (o.symbol, o)))
+    Map() ++ (orderbooks map (o ⇒ (o.symbol, o)))
 
   protected val txLog: TxLog =
     if (useTxLogFile)
@@ -16,7 +16,7 @@ trait MatchingEngine {
       new TxLogDummy
 
   def useTxLogFile() = {
-    val prop = System.getProperty("useTxLogFile")
+    val prop = System.getProperty("benchmark.useTxLogFile")
     // default false, if not defined
     (prop == "true")
   }

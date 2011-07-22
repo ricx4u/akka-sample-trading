@@ -22,51 +22,52 @@ class AkkaTradingSystem extends TradingSystem {
 
   var matchingEngineForOrderbook: Map[String, ActorRef] = Map()
 
-  override def createMatchingEngines = {
-    var i = 0
-    val pairs =
-      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine) yield {
-        i = i + 1
-        val me = createMatchingEngine("ME" + i, orderbooks)
-        val orderbooksCopy = orderbooks map (o => Orderbook(o.symbol, true))
-        val standbyOption =
-          if (useStandByEngines) {
-            val meStandby = createMatchingEngine("ME" + i + "s", orderbooksCopy)
-            Some(meStandby)
-          } else {
-            None
-          }
+  override def createMatchingEngines: List[MatchingEngineInfo] = {
+    for {
+      (orderbooks, i) ← orderbooksGroupedByMatchingEngine.zipWithIndex
+      n = i + 1
+    } yield {
+      val me = createMatchingEngine("ME" + n, orderbooks)
+      val orderbooksCopy = orderbooks map (o ⇒ Orderbook(o.symbol, true))
+      val standbyOption =
+        if (useStandByEngines) {
+          val meStandby = createMatchingEngine("ME" + n + "s", orderbooksCopy)
+          Some(meStandby)
+        } else {
+          None
+        }
 
-        (me, standbyOption)
-      }
-
-    Map() ++ pairs;
+      MatchingEngineInfo(me, standbyOption, orderbooks)
+    }
   }
 
   def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) =
     actorOf(new AkkaMatchingEngine(meId, orderbooks, meDispatcher))
 
   override def createOrderReceivers: List[ActorRef] = {
-    val primaryMatchingEngines = matchingEngines.map(pair => pair._1).toList
-    (1 to 10).toList map (i => createOrderReceiver(primaryMatchingEngines))
+    (1 to 10).toList map (i ⇒ createOrderReceiver())
   }
 
-  def createOrderReceiver(matchingEngines: List[ActorRef]) =
-    actorOf(new AkkaOrderReceiver(matchingEngines, orDispatcher))
+  def createOrderReceiver() =
+    actorOf(new AkkaOrderReceiver(orDispatcher))
 
   override def start() {
-    for ((p, s) <- matchingEngines) {
+    for (MatchingEngineInfo(p, s, o) ← matchingEngines) {
       p.start()
       // standby is optional
       s.foreach(_.start())
       s.foreach(p ! _)
     }
-    orderReceivers.foreach(_.start())
+    val routing = matchingEngineRouting
+    for (or ← orderReceivers) {
+      or.start()
+      or ! routing
+    }
   }
 
   override def shutdown() {
     orderReceivers.foreach(_ ! PoisonPill)
-    for ((p, s) <- matchingEngines) {
+    for (MatchingEngineInfo(p, s, o) ← matchingEngines) {
       p ! PoisonPill
       // standby is optional
       s.foreach(_ ! PoisonPill)

@@ -7,41 +7,41 @@ class BasicTradingSystem extends TradingSystem {
   type ME = BasicMatchingEngine
   type OR = BasicOrderReceiver
 
-  override def createMatchingEngines = {
-    var i = 0
-    val pairs =
-      for (orderbooks: List[Orderbook] <- orderbooksGroupedByMatchingEngine) yield {
-        i = i + 1
-        val me = new BasicMatchingEngine("ME" + i, orderbooks)
-        val orderbooksCopy = orderbooks map (o => Orderbook(o.symbol, true))
-        val standbyOption =
-          if (useStandByEngines) {
-            val meStandby = new BasicMatchingEngine("ME" + i + "s", orderbooksCopy)
-            Some(meStandby)
-          } else {
-            None
-          }
+  override def createMatchingEngines: List[MatchingEngineInfo] = {
+    for {
+      (orderbooks, i) ← orderbooksGroupedByMatchingEngine.zipWithIndex
+      n = i + 1
+    } yield {
+      val me = new BasicMatchingEngine("ME" + i, orderbooks)
+      val orderbooksCopy = orderbooks map (o ⇒ Orderbook(o.symbol, true))
+      val standbyOption =
+        if (useStandByEngines) {
+          val meStandby = new BasicMatchingEngine("ME" + i + "s", orderbooksCopy)
+          Some(meStandby)
+        } else {
+          None
+        }
 
-        (me, standbyOption)
-      }
-
-    Map() ++ pairs;
+      MatchingEngineInfo(me, standbyOption, orderbooks)
+    }
   }
 
   override def createOrderReceivers: List[BasicOrderReceiver] = {
-    val primaryMatchingEngines = matchingEngines.map(pair => pair._1).toList
-    val result = (1 to 10).toList map (i => new BasicOrderReceiver(primaryMatchingEngines))
-    result
+    (1 to 10).toList map (i ⇒ new BasicOrderReceiver())
   }
 
   override def start() {
-    for ((p, s) <- matchingEngines) {
+    for (MatchingEngineInfo(p, s, o) ← matchingEngines) {
       p.standby = s
+    }
+    val routing = matchingEngineRouting
+    for (or ← orderReceivers) {
+      or.updateRouting(routing)
     }
   }
 
   override def shutdown() {
-    for ((p, s) <- matchingEngines) {
+    for (MatchingEngineInfo(p, s, o) ← matchingEngines) {
       p.exit()
       // standby is optional
       s.foreach(_.exit())

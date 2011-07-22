@@ -1,6 +1,6 @@
 name := "akka-sample-trading"
 
-version := "1.1.2-SNAPSHOT"
+version := "1.1.3-SNAPSHOT"
 
 scalaVersion := "2.9.0-1"
 
@@ -9,9 +9,9 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases"
 
 
-libraryDependencies += "se.scalablesolutions.akka" % "akka-actor" % "1.1.2"
+libraryDependencies += "se.scalablesolutions.akka" % "akka-actor" % "1.1.3"
 
-libraryDependencies += "se.scalablesolutions.akka" % "akka-dispatcher-extras" % "1.1.2"
+libraryDependencies += "se.scalablesolutions.akka" % "akka-dispatcher-extras" % "1.1.3"
 
 libraryDependencies += "org.apache.commons" % "commons-math" % "2.1"
 

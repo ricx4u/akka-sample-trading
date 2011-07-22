@@ -1,37 +1,38 @@
 package org.samples.trading.akka
 
+import org.samples.trading.common.MatchingEngineRouting
 import org.samples.trading.common.OrderReceiver
+import org.samples.trading.domain.Order
+import org.samples.trading.domain.Rsp
+
 import akka.actor._
+import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.dispatch.MessageDispatcher
+import akka.event.EventHandler
 
-import org.samples.trading.domain._
-
-class AkkaOrderReceiver(val matchingEngines: List[ActorRef], disp: Option[MessageDispatcher])
+class AkkaOrderReceiver(disp: Option[MessageDispatcher])
   extends Actor with OrderReceiver {
   type ME = ActorRef
 
-  for (d <- disp) {
+  for (d ← disp) {
     self.dispatcher = d
   }
 
   def receive = {
-    case order: Order => placeOrder(order)
-    case unknown      => println("Received unknown message: " + unknown)
-  }
-
-  override def supportedOrderbooks(me: ActorRef): List[Orderbook] = {
-    (me !!! SupportedOrderbooksReq).get
+    case routing@MatchingEngineRouting(mapping) ⇒
+      refreshMatchingEnginePartitions(routing.asInstanceOf[MatchingEngineRouting[ActorRef]])
+    case order: Order ⇒ placeOrder(order)
+    case unknown      ⇒ EventHandler.warning(this, "Received unknown message: " + unknown)
   }
 
   def placeOrder(order: Order) = {
-    if (matchingEnginePartitionsIsStale) refreshMatchingEnginePartitions()
     val matchingEngine = matchingEngineForOrderbook.get(order.orderbookSymbol)
     matchingEngine match {
-      case Some(m) =>
-        // println("receiver " + order)
+      case Some(m) ⇒
         m.forward(order)
-      case None =>
-        println("Unknown orderbook: " + order.orderbookSymbol)
+      case None ⇒
+        EventHandler.warning(this, "Unknown orderbook: " + order.orderbookSymbol)
         self.channel ! new Rsp(false)
     }
   }

@@ -8,7 +8,6 @@ class ActorBangTradingSystem extends ActorTradingSystem {
   override def createMatchingEngine(meId: String, orderbooks: List[Orderbook]) =
     new ActorBangMatchingEngine(meId, orderbooks)
 
-  override def createOrderReceiver(matchingEngines: List[ActorMatchingEngine]) =
-    new ActorBangOrderReceiver(matchingEngines)
+  override def createOrderReceiver() = new ActorBangOrderReceiver
 
 }

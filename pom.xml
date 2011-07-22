@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.patriknw</groupId>
 	<artifactId>akka-sample-trading</artifactId>
-	<version>1.1.2</version>
+	<version>1.1.3-SNAPSHOT</version>
 	<name>Scala Akka Trading Sample</name>
 	<packaging>jar</packaging>
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scala.version>2.9.0-1</scala.version>
-		<akka.version>1.1.2</akka.version>
+		<akka.version>1.1.3</akka.version>
 	</properties>
   <distributionManagement>
       <!-- Use -DaltDeploymentRepository when deploying, as described here:
@@ -92,7 +92,7 @@
 					<!-- scala actors thread pool can be configured with
 						-Dactors.corePoolSize=4 -Dactors.maxPoolSize=16
 					 -->
-					<argLine>-server -Xms512m -Xmx1024m -XX:+UseConcMarkSweepGC -DuseTxLogFile=false -Dbenchmark=false -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true -DrepeatFactor=10 -DwarmupRepeatFactor=10</argLine>
+					<argLine>-server -Xms512m -Xmx1024m -XX:+UseConcMarkSweepGC -Dbenchmark=false -Dbenchmark.minClients=1 -Dbenchmark.maxClients=40 -Dbenchmark.useDummyOrderbook=true -Dbenchmark.repeatFactor=10 -Dbenchmark.warmupRepeatFactor=10 -Dbenchmark.resultDir=target/benchmark</argLine>
 					<!-- 
 					<includes>
 						<include>**/AkkaPerformanceTest.*</include>

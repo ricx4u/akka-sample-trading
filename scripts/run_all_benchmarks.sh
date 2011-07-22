@@ -1,6 +1,7 @@
 #!/bin/bash
 
 RUN_SCRIPT=`dirname $0`/run_benchmark.sh
+RESULT_DIR=`dirname $0`/../results
 
 runTests() {
 #  $RUN_SCRIPT org.samples.trading.basic.BasicPerformanceTest
@@ -12,14 +13,14 @@ runTests() {
 }
 
 # All tests with tx logging
-#export BENCH_PROPS='-DuseTxLogFile=true -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=false'
+#export BENCH_PROPS="-Dbenchmark.useTxLogFile=true -Dbenchmark=true -Dbenchmark.minClients=1 -Dbenchmark.maxClients=40 -Dbenchmark.useDummyOrderbook=false -Dbenchmark.resultDir=${RESULT_DIR}"
 #runTests
 
 # All tests without tx logging
-#export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=false'
+#export BENCH_PROPS="-Dbenchmark.useTxLogFile=false -Dbenchmark=true -Dbenchmark.minClients=1 -Dbenchmark.maxClients=40 -Dbenchmark.useDummyOrderbook=false -Dbenchmark.resultDir=${RESULT_DIR}"
 #runTests
 
 # All tests without tx logging, with DummyOrderbook
-export BENCH_PROPS='-DuseTxLogFile=false -Dbenchmark=true -DminClients=1 -DmaxClients=40 -DuseDummyOrderbook=true -DrepeatFactor=300' 
+export BENCH_PROPS="-Dbenchmark.useTxLogFile=false -Dbenchmark=true -Dbenchmark.minClients=1 -Dbenchmark.maxClients=40 -Dbenchmark.useDummyOrderbook=true -Dbenchmark.repeatFactor=300 -Dbenchmark.resultDir=${RESULT_DIR}" 
 runTests
 

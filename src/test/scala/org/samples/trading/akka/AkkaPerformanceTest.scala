@@ -9,12 +9,18 @@ import org.samples.trading.common._
 import akka.actor.ActorRef
 import akka.actor.Actor
 import akka.actor.Actor.actorOf
+import akka.config.Config
+import akka.config.Config._
 import akka.dispatch.Dispatchers
 import akka.actor.PoisonPill
+import org.samples.trading.workbench.Report
+import org.samples.trading.workbench.BenchResultRepository
 
 class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceScenarios 
 {
   type TS = AkkaTradingSystem
+
+  override def report = new AkkaReport(resultRepository, compareResultWith)
 
   val clientDispatcher = Dispatchers.newExecutorBasedEventDrivenDispatcher("client-dispatcher")
     .withNewThreadPoolWithLinkedBlockingQueueWithUnboundedCapacity
@@ -38,7 +44,7 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
     val oddRepeats = repeat - (repeatsPerClient * numberOfClients)
     val latch = new CountDownLatch(numberOfClients)
     val receivers = tradingSystem.orderReceivers.toIndexedSeq
-    val clients = (for (i <- 0 until numberOfClients) yield {
+    val clients = (for (i ← 0 until numberOfClients) yield {
       val receiver = receivers(i % receivers.size)
       actorOf(new Client(receiver, orders, latch, repeatsPerClient + (if (i < oddRepeats) 1 else 0), delayMs))
     }).toList
@@ -64,11 +70,11 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
     }
 
     def receive = {
-      case "run" =>
-        (1 to repeat).foreach(i =>
+      case "run" ⇒
+        (1 to repeat).foreach(i ⇒
           {
             // println("Client " + Thread.currentThread + " repeat: " + i)
-            for (o <- orders) {
+            for (o ← orders) {
               val t0 = System.nanoTime
               val rsp = placeOrder(orderReceiver, o)
               val duration = System.nanoTime - t0
@@ -86,4 +92,23 @@ class AkkaPerformanceTest extends BenchmarkScenarios // with OtherPerformanceSce
 
 }
 
+class AkkaReport(resultRepository: BenchResultRepository,
+  compareResultWith: Option[String] = None)
+  extends Report(resultRepository, compareResultWith) {
 
+  override def systemInformation: String = {
+    val sb = new StringBuilder
+
+    sb.append(super.systemInformation)
+
+    sb.append("Akka version: ").append(Config.CONFIG_VERSION)
+    sb.append("\n")
+    sb.append("Akka config:")
+    for (key ← config.keys) {
+      sb.append("\n  ").append(key).append("=").append(config(key))
+    }
+    sb.append("\n")
+
+    sb.toString
+  }
+}
