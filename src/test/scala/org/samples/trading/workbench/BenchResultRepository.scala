@@ -27,6 +27,8 @@ trait BenchResultRepository {
 
   def htmlReportUrl(name: String): String
 
+  def reset(): Unit
+
 }
 
 object BenchResultRepository {
@@ -67,6 +69,13 @@ class FileBenchResultRepository extends BenchResultRepository {
     val current = get(name, load)
 
     (IndexedSeq.empty ++ historical ++ baseline ++ current).takeRight(maxHistorical)
+  }
+
+  def reset() {
+    statsByName.clear()
+    baselineStats.clear()
+    historicalStats.clear()
+    loadFiles()
   }
 
   private def loadFiles() {

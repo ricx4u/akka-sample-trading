@@ -137,10 +137,16 @@ trait PerformanceTest {
     }
   }
 
+  def reset() {
+    resultRepository.reset()
+    TestStart.reset()
+  }
+
 }
 
 // Don't know why surefire tries to run this as a test
 @Ignore
 object TestStart {
-  val startTime = System.currentTimeMillis
+  var startTime = System.currentTimeMillis
+  def reset() { startTime = System.currentTimeMillis }
 }
