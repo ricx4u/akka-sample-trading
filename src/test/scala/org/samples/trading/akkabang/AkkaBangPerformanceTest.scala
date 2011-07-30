@@ -23,7 +23,7 @@ class AkkaBangPerformanceTest extends AkkaPerformanceTest {
   override def placeOrder(orderReceiver: ActorRef, order: Order): Rsp = {
     val newOrder = LatchOrder(order)
     orderReceiver ! newOrder
-    val ok = newOrder.latch.await(10, TimeUnit.SECONDS)
+    val ok = newOrder.latch.await(10 * timeDilation, TimeUnit.SECONDS)
     new Rsp(ok)
   }
 
@@ -32,8 +32,8 @@ class AkkaBangPerformanceTest extends AkkaPerformanceTest {
   override def dummy {}
 
   def createLatchOrder(order: Order) = order match {
-    case bid: Bid => new Bid(order.orderbookSymbol, order.price, order.volume) with LatchMessage { val count = 2 }
-    case ask: Ask => new Ask(order.orderbookSymbol, order.price, order.volume) with LatchMessage { val count = 2 }
+    case bid: Bid ⇒ new Bid(order.orderbookSymbol, order.price, order.volume) with LatchMessage { val count = 2 }
+    case ask: Ask ⇒ new Ask(order.orderbookSymbol, order.price, order.volume) with LatchMessage { val count = 2 }
   }
 
 }
