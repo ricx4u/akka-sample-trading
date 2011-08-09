@@ -13,6 +13,8 @@ libraryDependencies += "se.scalablesolutions.akka" % "akka-actor" % "1.1.3"
 
 libraryDependencies += "se.scalablesolutions.akka" % "akka-dispatcher-extras" % "1.1.3"
 
+libraryDependencies += "org.fusesource.hawtdispatch" % "hawtdispatch-scala" % "1.4"
+
 libraryDependencies += "org.apache.commons" % "commons-math" % "2.1"
 
 libraryDependencies += "junit" % "junit" % "4.8.2" % "test"

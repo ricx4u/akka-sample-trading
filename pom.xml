@@ -205,6 +205,11 @@
 		    <artifactId>akka-dispatcher-extras</artifactId>
 		    <version>${akka.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.fusesource.hawtdispatch</groupId>
+		    <artifactId>hawtdispatch-scala</artifactId>
+		    <version>1.4</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
