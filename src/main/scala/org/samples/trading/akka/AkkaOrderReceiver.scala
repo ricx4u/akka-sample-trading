@@ -15,6 +15,10 @@ class AkkaOrderReceiver(disp: Option[MessageDispatcher])
   extends Actor with OrderReceiver {
   type ME = ActorRef
 
+  var orderCount = 0L
+  // possibility to yield, due to starvation in some jvm/os
+  val yieldCount = System.getProperty("benchmark.yieldCount", "0").toInt;
+
   for (d ← disp) {
     self.dispatcher = d
   }
@@ -22,8 +26,13 @@ class AkkaOrderReceiver(disp: Option[MessageDispatcher])
   def receive = {
     case routing@MatchingEngineRouting(mapping) ⇒
       refreshMatchingEnginePartitions(routing.asInstanceOf[MatchingEngineRouting[ActorRef]])
-    case order: Order ⇒ placeOrder(order)
-    case unknown      ⇒ EventHandler.warning(this, "Received unknown message: " + unknown)
+    case order: Order ⇒
+      placeOrder(order)
+      if (yieldCount > 0 && orderCount % yieldCount == 0) {
+        Thread.`yield`()
+        orderCount += 1
+      }
+    case unknown ⇒ EventHandler.warning(this, "Received unknown message: " + unknown)
   }
 
   def placeOrder(order: Order) = {

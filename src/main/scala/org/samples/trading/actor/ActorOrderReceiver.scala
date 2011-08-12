@@ -19,14 +19,23 @@ class ActorOrderReceiver
   //        })
   //    }
 
+  var orderCount = 0L
+  // possibility to yield, due to starvation in some jvm/os
+  val yieldCount = System.getProperty("benchmark.yieldCount", "0").toInt;
+
   def act() {
     loop {
       react {
         case routing@MatchingEngineRouting(mapping) ⇒
           refreshMatchingEnginePartitions(routing.asInstanceOf[MatchingEngineRouting[ActorMatchingEngine]])
-        case order: Order ⇒ placeOrder(order)
-        case "exit"       ⇒ exit
-        case unknown      ⇒ println("Received unknown message: " + unknown)
+        case order: Order ⇒
+          placeOrder(order)
+          if (yieldCount > 0 && orderCount % yieldCount == 0) {
+            Thread.`yield`()
+            orderCount += 1
+          }
+        case "exit"  ⇒ exit
+        case unknown ⇒ println("Received unknown message: " + unknown)
       }
     }
   }
