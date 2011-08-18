@@ -32,8 +32,8 @@ class ActorOrderReceiver
           placeOrder(order)
           if (yieldCount > 0 && orderCount % yieldCount == 0) {
             Thread.`yield`()
-            orderCount += 1
           }
+          orderCount += 1
         case "exit"  ⇒ exit
         case unknown ⇒ println("Received unknown message: " + unknown)
       }

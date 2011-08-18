@@ -30,8 +30,8 @@ class AkkaOrderReceiver(disp: Option[MessageDispatcher])
       placeOrder(order)
       if (yieldCount > 0 && orderCount % yieldCount == 0) {
         Thread.`yield`()
-        orderCount += 1
       }
+      orderCount += 1
     case unknown ⇒ EventHandler.warning(this, "Received unknown message: " + unknown)
   }
 
