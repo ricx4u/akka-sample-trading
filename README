@@ -1,2 +1,3 @@
 This benchmark has been improved and included in akka source, see https://github.com/jboner/akka/tree/master/akka-actor-tests/src/test/scala/akka/performance/trading
 
+Previous source code is available in branch 'old'.
